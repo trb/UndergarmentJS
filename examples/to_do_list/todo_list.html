@@ -8,7 +8,7 @@
         <script type="text/javascript" src="../../Undergarment.js"></script>
         <script type="text/javascript">
             var data = {
-                selected: 'today',
+                selected: '',
                 
                 lists: [
                     {
@@ -48,13 +48,43 @@
                     ]
                 },
                 
-                addItem: function(list_id, id, name) {
+                _id: function(name) {
+                    var id = '';
+                    for (var i=0; i<name.length; ++i) {
+                        if (name[i].match(/[a-z0-9]/i)) {
+                            id+= name[i];
+                        }
+                    }
+                    
+                    return id;
+                },
+                
+                addItem: function(list_id, name) {
+                    var id = this._id(name);
+                    if (id === '') {
+                        return;
+                    }
+                    
                     this.items[list_id].push({
                         id: id,
                         name: name
                     });
                     
                     Connect.trigger('event:items_changed');
+                },
+                
+                addList: function(name) {
+                    var id = this._id(name);
+                    this.lists.push({
+                        id: id,
+                        name: name
+                    });
+                    
+                    this.items[id] = [];
+                    
+                    Connect.trigger('event:lists_changed');
+                    
+                    this.select(id);
                 },
                 
                 select: function(list_id) {
@@ -100,6 +130,7 @@
             
             Connect.connect([
                 'document:ready', 'resource:lists',
+                'event:lists_changed', 'resource:lists',
                 'resource:lists', 'template:lists',
                 'template:lists', 'element:lists',
                 
@@ -113,7 +144,7 @@
             });
             
             setTimeout(function() {
-                data.addItem('today', 'today_auto', 'Bake cake for cake sale');
+                data.addItem('today', 'Bake cake for cake sale');
             }, 5000);
             
             $(document).on('click', '#lists', function(event) {
@@ -126,20 +157,109 @@
                     window.data.select(listId);
                 }
             });
+            
+            window.ignoreCommands = false;
+            $(document).on('keyup', function(event) {
+                if (window.ignoreCommands) {
+                    return;
+                }           
+                     
+                switch (event.which) {
+                    case 38: //up arrow
+                        var prevListId = $('#list_' + data.selected)
+                                         .prev().attr('data-id');
+                        if (prevListId !== undefined) {
+                            window.data.select(prevListId);
+                        }
+                    break;
+                    case 40: //down arrow
+                        var nextListId = $('#list_' + data.selected)
+                                         .next().attr('data-id');
+                        if (nextListId !== undefined) {
+                            window.data.select(nextListId);
+                        }
+                    break;
+                    case 73: // 'i'
+                        $('#item_add_link').click();
+                    break;
+                    case 76: // 'l'
+                        $('#list_add_link').click();
+                    break;
+                }
+            });
+            
+            $(document).ready(function() {
+                $('#list_add').submit(function(event) {
+                    event.preventDefault();
+                    window.ignoreCommands = false;
+                    
+                    var name = $('#list_name').val();
+                    if (name === '') {
+                        return;
+                    }
+                    
+                    $('#list_add').hide();
+                    $('#list_name').val('');
+                    $('#list_add_link').show();
+                    
+                    window.data.addList(name);
+                });
+                
+                $('#list_add_link').click(function(event) {
+                    window.ignoreCommands = true;
+                    
+                    event.preventDefault();
+                    $('#list_add_link').hide();
+                    $('#list_add').show();
+                    $('#list_name').focus();
+                });
+                
+                $('#item_add').submit(function(event) {
+                    event.preventDefault();
+                    window.ignoreCommands = false;
+                    
+                    var name = $('#item_name').val();
+                    if (name === '') {
+                        return;
+                    }
+                    
+                    $('#item_add').hide();
+                    $('#item_name').val('');
+                    $('#item_add_link').show();
+                    
+                    window.data.addItem(window.data.selected, name);
+                });
+                
+                $('#item_add_link').click(function(event) {
+                    window.ignoreCommands = true;
+                    event.preventDefault();
+                    
+                    $('#item_add_link').hide();
+                    $('#item_add').show();
+                    $('#item_name').focus();
+                });
+            });
         </script>
         
         <link rel="stylesheet"
-            href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
+            href="bootstrap.min.css">
             
         <style type="text/css">
             ul, li {
                 color: #eee;
             }
+            
             .container {
                 background-color: #555;
                 color: #eee;
                 font-size: 1.3em;
                 padding: 5px;
+                -webkit-border-bottom-right-radius: 5px;
+                -webkit-border-bottom-left-radius: 5px;
+                -moz-border-radius-bottomright: 5px;
+                -moz-border-radius-bottomleft: 5px;
+                border-bottom-right-radius: 5px;
+                border-bottom-left-radius: 5px;
             }
             .list-container {
                 border-right: 2px solid #777;
@@ -148,6 +268,17 @@
             .hint {
                 font-size: 0.7em;
                 color: #999;
+            }
+            a.hint:visited {
+                text-decoration: none;
+                color: #999;
+            }
+            a.hint:hover {
+                text-decoration: none;
+                color: #eee;
+            }
+            a.hint:active {
+                color: #777;
             }
             .list_marker { visibility: hidden; }
             
@@ -167,6 +298,11 @@
             #lists a:visited {
                 color #eee;
             }
+            
+            #list_add label {
+                color: #999;
+                text-align: left;
+            }
         </style>
             
         <title>Todo list example | Undergarment.js</title>
@@ -182,6 +318,20 @@
                         </span>
                         <ul id="lists">
                         </ul>
+                        <form id="list_add" action="#" style="display: none;">
+                            <input type="text"
+                                id="list_name"
+                                name="list_name"
+                                class="span3" />
+                            <button type="submit" class="span2 btn primary">
+                                Add
+                            </button>
+                            <br />
+                        </form>
+                        
+                        <a href="#" id="list_add_link" class="hint span5">
+                            + add new list
+                        </a>
                     </div>
                 </div>
                 <div class="span11">
@@ -190,6 +340,19 @@
                     </span>
                     <ul id="todo_items">
                     </ul>
+                    <form id="item_add" action="#" style="display: none;">
+                        <input type="text"
+                            id="item_name"
+                            name="item_name"
+                            class="span3" />
+                        <button type="submit" class="span2 btn primary">
+                            Add
+                        </button>
+                        <br />
+                    </form>
+                    <a href="#" id="item_add_link" class="hint span11">
+                        + add item to list
+                    </a>
                 </div>
             </div>
         </div>

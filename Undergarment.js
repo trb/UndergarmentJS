@@ -47,7 +47,7 @@
         connect: function() {
             var usage = 'Wrong function signature for connect! ' +
                 'Either connect(id_source, id_target) or ' +
-                "connect({ 'id_source': 'id_target', .. })"; 
+                "connect([ 'id_source', 'id_target', .. ])"; 
             
             if (arguments.length === 1) {
                 if (typeof arguments[0] === 'object') {
@@ -82,8 +82,8 @@
         },
         
         addResourceUrl: function(id, url) {
-            var data = arguments[1] || {};
-            var method = arguments[2] || 'GET';
+            var data = arguments[2] || {};
+            var method = arguments[3] || 'GET';
             
             if  (typeof data === 'function') {
                 data = data();

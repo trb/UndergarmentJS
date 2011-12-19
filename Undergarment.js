@@ -49,10 +49,10 @@
                 'Either connect(id_source, id_target) or ' +
                 "connect({ 'id_source': 'id_target', .. })"; 
             
-            if (arguments.length == 1) {
+            if (arguments.length === 1) {
                 if (typeof arguments[0] === 'object') {
-                    for (var id_source in arguments[0]) {
-                        this._connect(id_source, arguments[0][id_source]);
+                    for (var i=0; i<arguments[0].length; i+=2) {
+                        this._connect(arguments[0][i], arguments[0][i+1]);
                     }
                 } else {
                     throw usage; 
@@ -71,6 +71,14 @@
             if (this.connections[event] !== undefined) {
                 this.connections[event].fire(data);
             }
+        },
+        
+        on: function(event, handler) {
+            if (this.connections[event] === undefined) {
+                this.connections[event] = $.Callbacks();
+            }
+            
+            this.connections[event].add(handler);
         },
         
         addResourceUrl: function(id, url) {
@@ -134,9 +142,12 @@
         
         addElement: function(id, elementSelector) {
             var handler = arguments[2] || 'html';
+            this_ = this;
             this.elements[id] = function() {
                 var data = parseArgs(arguments);
                 $(elementSelector)[handler](data);
+                
+                this_.trigger(id);
             };
         }
     };

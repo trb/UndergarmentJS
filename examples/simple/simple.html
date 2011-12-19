@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <script type="text/javascript"
+             src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js">
+             </script>
+        <script type="text/javascript" src="../../Undergarment.js"></script>
+        <title>Simple example | Undergarment.js</title>
+    </head>
+    <body>
+        <form id="name_form" action="#" onsubmit="return false;">
+            <label for="name">Name:</label><br />
+            <input type="text" id="name" name="name" />
+            <br />
+            <label for="last_name">Last name:</label><br />
+            <input type="text" id="last_name" name="last_name" />
+            <br />
+            <button type="submit">Whoop</button>
+        </form>
+        <h1 id="greeting">Welcome, stranger</h1>
+        
+        <script type="text/javascript">
+            Connect.addEvent('name_form:submit', '#name_form', 'change');
+            Connect.addResource('resource:name', function() {
+                var data = $('#name_form').serializeArray();
+                var returnData = {};
+                for (var i=0; i<data.length; ++i) {
+                    returnData[data[i]['name']] = data[i]['value'];
+                }
+                return returnData;
+            });
+            Connect.addTemplate('template:greeting', function(json) {
+                return 'Welcome, ' + json.name + ' ' + json.last_name;
+            });
+            Connect.addElement('element:greeting', '#greeting');
+            Connect.connect({
+                'name_form:submit': 'resource:name',
+                'resource:name': 'template:greeting',
+                'template:greeting': 'element:greeting'
+            });
+           
+           Connect.addEvent('document:click', document, 'click',
+               'Oh, you clicked');
+           Connect.addElement('element:greeting', '#greeting');
+           
+           Connect.connect('document:click', 'element:greeting');
+        </script>
+    </body>
+</html>

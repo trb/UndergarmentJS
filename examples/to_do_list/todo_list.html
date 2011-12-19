@@ -1,0 +1,200 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <script type="text/javascript"
+             src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js">
+             </script>
+        <script type="text/javascript" src="mustache.js"></script>
+        <script type="text/javascript" src="../../Undergarment.js"></script>
+        <script type="text/javascript">
+            var data = {
+                selected: 'today',
+                
+                lists: [
+                    {
+                        id: 'today',
+                        name: 'Today'
+                    },
+                    {
+                        id: 'tomorrow',
+                        name: 'Tomorrow'
+                    }
+                ],
+                
+                items: {
+                    today: [
+                        {
+                            id: 'today_1',
+                            name: 'Buy milk'
+                        },
+                        {
+                            id: 'today_2',
+                            name: 'Balance credit cards'
+                        },
+                        {
+                            id: 'today_3',
+                            name: 'Pay rent'
+                        }
+                    ],
+                    tomorrow: [
+                        {
+                            id: 'tomorrow_1',
+                            name: 'Water plants'
+                        },
+                        {
+                            id: 'tomorrow_2',
+                            name: 'Bring car to garage'
+                        }
+                    ]
+                },
+                
+                addItem: function(list_id, id, name) {
+                    this.items[list_id].push({
+                        id: id,
+                        name: name
+                    });
+                    
+                    Connect.trigger('event:items_changed');
+                },
+                
+                select: function(list_id) {
+                    if (this.selected === 'list_id') {
+                        return;
+                    }
+                    
+                    $('.list_marker').css({'visibility': 'hidden'});
+                    $('#list_marker_'+list_id).css({'visibility': 'visible'});
+                    
+                    this.selected = list_id;
+                    Connect.trigger('event:items_changed');
+                }
+            };
+            
+            var templates = {
+                list: '<li data-id="{{id}}" id="list_{{id}}"><a href="#"><span class="list_marker" id="list_marker_{{id}}">&raquo;</span>{{name}}</a></li>',
+                todo_item: '<li id="todo_{{id}}">{{name}}</li>'
+            };
+            
+            Connect.addResource('resource:lists', data['lists']);
+            Connect.addResource('resource:items', function(){
+                return window.data['items'][window.data.selected];
+            });
+            Connect.addTemplate('template:lists', function(lists) {
+                var html = '';
+                for (var i=0; i<lists.length; ++i) {
+                    html+= Mustache.to_html(window.templates['list'], lists[i]);
+                }
+                return html;
+            });
+            Connect.addTemplate('template:items', function(items) {
+                var html = '';
+                for (var i=0; i<items.length; ++i) {
+                    html+= Mustache.to_html(window.templates['todo_item'],
+                        items[i]);
+                }
+                return html;
+            });
+            Connect.addEvent('document:ready', document, 'ready');
+            Connect.addElement('element:lists', '#lists');
+            Connect.addElement('element:items', '#todo_items');
+            
+            Connect.connect([
+                'document:ready', 'resource:lists',
+                'resource:lists', 'template:lists',
+                'template:lists', 'element:lists',
+                
+                'event:items_changed', 'resource:items',
+                'resource:items', 'template:items',
+                'template:items', 'element:items'
+            ]);
+            
+            Connect.on('element:lists', function() {
+                data.select('today');
+            });
+            
+            setTimeout(function() {
+                data.addItem('today', 'today_auto', 'Bake cake for cake sale');
+            }, 5000);
+            
+            $(document).on('click', '#lists', function(event) {
+                event.preventDefault();
+                
+                var target = $(event.target);
+                if (target.is('a, span')) {
+                    var listId = target.parents('li').attr('data-id');
+                    
+                    window.data.select(listId);
+                }
+            });
+        </script>
+        
+        <link rel="stylesheet"
+            href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
+            
+        <style type="text/css">
+            ul, li {
+                color: #eee;
+            }
+            .container {
+                background-color: #555;
+                color: #eee;
+                font-size: 1.3em;
+                padding: 5px;
+            }
+            .list-container {
+                border-right: 2px solid #777;
+            }
+            
+            .hint {
+                font-size: 0.7em;
+                color: #999;
+            }
+            .list_marker { visibility: hidden; }
+            
+            #lists {
+                list-style-type: none;
+            }
+            #lists a {
+                color: #eee;
+            }
+            #lists a:hover {
+                color: #fff;
+                text-decoration: none;
+            }
+            #lists a:active {
+                color: #ddd;
+            }
+            #lists a:visited {
+                color #eee;
+            }
+        </style>
+            
+        <title>Todo list example | Undergarment.js</title>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="span5">
+                    <div class="list-container">
+                        <span class="hint">
+                            Here you can select or create
+                            different todo lists.
+                        </span>
+                        <ul id="lists">
+                        </ul>
+                    </div>
+                </div>
+                <div class="span11">
+                    <span class="hint">
+                        The todos for the current list
+                    </span>
+                    <ul id="todo_items">
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <script type="text/javascript">
+        </script>
+    </body>
+</html>

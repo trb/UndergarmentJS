@@ -28,20 +28,18 @@
         },
         
         interval: function(id, interval) {
+            var data = arguments[2] || {};
+            
             this_ = this;
             window.setInterval(function() {
-                var handler = this_.handlerById(id);
-                handler();
+                this_.trigger(id, data);
             }, interval);
         },
         
         _connect: function(id_source, id_target) {
-            if (this.connections[id_source] === undefined) {
-                this.connections[id_source] = $.Callbacks();
-            }
-            
             var handler = this.handlerById(id_target);
-            this.connections[id_source].add(handler);
+            
+            this.on(id_source, handler);
         },
         
         connect: function() {

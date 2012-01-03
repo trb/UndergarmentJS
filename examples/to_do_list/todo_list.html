@@ -70,7 +70,7 @@
                         name: name
                     });
                     
-                    Connect.trigger('event:items_changed');
+                    ug.trigger('event:items_changed');
                 },
                 
                 addList: function(name) {
@@ -82,7 +82,7 @@
                     
                     this.items[id] = [];
                     
-                    Connect.trigger('event:lists_changed');
+                    ug.trigger('event:lists_changed');
                     
                     this.select(id);
                 },
@@ -96,7 +96,7 @@
                     $('#list_marker_'+list_id).css({'visibility': 'visible'});
                     
                     this.selected = list_id;
-                    Connect.trigger('event:items_changed');
+                    ug.trigger('event:items_changed');
                 }
             };
             
@@ -105,18 +105,18 @@
                 todo_item: '<li id="todo_{{id}}">{{name}}</li>'
             };
             
-            Connect.addResource('resource:lists', data['lists']);
-            Connect.addResource('resource:items', function(){
+            ug.addResource('resource:lists', data['lists']);
+            ug.addResource('resource:items', function(){
                 return window.data['items'][window.data.selected];
             });
-            Connect.addTemplate('template:lists', function(lists) {
+            ug.addTemplate('template:lists', function(lists) {
                 var html = '';
                 for (var i=0; i<lists.length; ++i) {
                     html+= Mustache.to_html(window.templates['list'], lists[i]);
                 }
                 return html;
             });
-            Connect.addTemplate('template:items', function(items) {
+            ug.addTemplate('template:items', function(items) {
                 var html = '';
                 for (var i=0; i<items.length; ++i) {
                     html+= Mustache.to_html(window.templates['todo_item'],
@@ -124,11 +124,11 @@
                 }
                 return html;
             });
-            Connect.addEvent('document:ready', document, 'ready');
-            Connect.addElement('element:lists', '#lists');
-            Connect.addElement('element:items', '#todo_items');
+            ug.addEvent('document:ready', document, 'ready');
+            ug.addElement('element:lists', '#lists');
+            ug.addElement('element:items', '#todo_items');
             
-            Connect.connect([
+            ug.connect([
                 'document:ready', 'resource:lists',
                 'event:lists_changed', 'resource:lists',
                 'resource:lists', 'template:lists',
@@ -139,7 +139,7 @@
                 'template:items', 'element:items'
             ]);
             
-            Connect.on('element:lists', function() {
+            ug.on('element:lists', function() {
                 data.select('today');
             });
             

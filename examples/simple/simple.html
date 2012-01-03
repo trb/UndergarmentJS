@@ -20,8 +20,8 @@
         <h1 id="greeting">Welcome, stranger</h1>
         
         <script type="text/javascript">
-            Connect.addEvent('name_form:submit', '#name_form', 'change');
-            Connect.addResource('resource:name', function() {
+            ug.addEvent('name_form:submit', '#name_form', 'change');
+            ug.addResource('resource:name', function() {
                 var data = $('#name_form').serializeArray();
                 var returnData = {};
                 for (var i=0; i<data.length; ++i) {
@@ -29,21 +29,21 @@
                 }
                 return returnData;
             });
-            Connect.addTemplate('template:greeting', function(json) {
+            ug.addTemplate('template:greeting', function(json) {
                 return 'Welcome, ' + json.name + ' ' + json.last_name;
             });
-            Connect.addElement('element:greeting', '#greeting');
-            Connect.connect({
+            ug.addElement('element:greeting', '#greeting');
+            ug.connect({
                 'name_form:submit': 'resource:name',
                 'resource:name': 'template:greeting',
                 'template:greeting': 'element:greeting'
             });
            
-           Connect.addEvent('document:click', document, 'click',
+           ug.addEvent('document:click', document, 'click',
                'Oh, you clicked');
-           Connect.addElement('element:greeting', '#greeting');
+           ug.addElement('element:greeting', '#greeting');
            
-           Connect.connect('document:click', 'element:greeting');
+           ug.connect('document:click', 'element:greeting');
         </script>
     </body>
 </html>

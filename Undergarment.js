@@ -1,4 +1,4 @@
-(function($) {
+var ug = (function($) {
     var parseArgs = function(args) {
         var data = args[0] || {};
         if (typeof data === 'function') {
@@ -8,7 +8,7 @@
         return data;
     };
     
-    var Connect = {
+    var Undergarment = {
         connections: {},
         resources: {},
         templates: {},
@@ -150,5 +150,5 @@
         }
     };
     
-    window.Connect = Connect;
+    return Undergarment;
 })(jQuery);

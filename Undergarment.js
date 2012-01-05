@@ -79,6 +79,14 @@ var ug = (function($) {
             this.connections[event].add(handler);
         },
         
+        off: function(event, handler) {
+            if (this.connections[event] === undefined) {
+                return; // success, nothing existed and nothing can be removed
+            }
+            
+            this.connections[event].remove(handler);
+        },
+        
         addResourceUrl: function(id, url) {
             var data = arguments[2] || {};
             var method = arguments[3] || 'GET';

@@ -66,8 +66,20 @@ var ug = (function($) {
                 data = data();
             }
             
-            if (this.connections[event] !== undefined) {
-                this.connections[event].fire(data);
+            var this_ = this;
+            var _fire = function(event) {
+                if (this_.connections[event] !== undefined) {
+                    this_.connections[event].fire(data);
+                }
+            };
+            
+            var events = event.split('.');
+            var baseEvent = events.splice(0, 1)[0];
+            
+            _fire(baseEvent);
+            
+            for (var i=0; i<events.length; ++i) {
+                _fire(baseEvent + '.' + events[i]);
             }
         },
         
@@ -135,8 +147,8 @@ var ug = (function($) {
         addEvent: function(id, elementSelector, event) {
             var data = arguments[3] || {};
             this_ = this;
+            
             $(elementSelector).on(event, function(eventObject) {
-                eventObject.preventDefault();
                 if (typeof data === 'function') {
                     var payload = data();
                 } else {

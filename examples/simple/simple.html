@@ -20,7 +20,7 @@
         <h1 id="greeting">Welcome, stranger</h1>
         
         <script type="text/javascript">
-            ug.addEvent('name_form:submit', '#name_form', 'change');
+            ug.addEvent('name_form:submit', '#name_form', 'submit');
             ug.addResource('resource:name', function() {
                 var data = $('#name_form').serializeArray();
                 var returnData = {};
@@ -33,17 +33,31 @@
                 return 'Welcome, ' + json.name + ' ' + json.last_name;
             });
             ug.addElement('element:greeting', '#greeting');
-            ug.connect({
-                'name_form:submit': 'resource:name',
-                'resource:name': 'template:greeting',
-                'template:greeting': 'element:greeting'
-            });
+            ug.connect([
+                'name_form:submit', 'resource:name',
+                'resource:name', 'template:greeting',
+                'template:greeting', 'element:greeting'
+            ]);
            
            ug.addEvent('document:click', document, 'click',
                'Oh, you clicked');
            ug.addElement('element:greeting', '#greeting');
            
            ug.connect('document:click', 'element:greeting');
+           
+           /*
+            * Namespaced event handlers, similiar to jQuery:
+            * 
+            * event.subevent will fire handlers listening on 'event' and
+            * 'subevent'. The period ('.') is the seperator.
+            */
+           ug.on('events:main_event', function() {
+               $(document.body).append('<span>Main event fired</span><br />');
+           });
+           ug.on('events:main_event.subevent', function() {
+               $(document.body).append('<span>Subevent fired</span><br />');
+           });
+           ug.trigger('events:main_event.subevent');
         </script>
     </body>
 </html>

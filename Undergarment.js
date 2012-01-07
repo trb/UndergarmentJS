@@ -78,8 +78,10 @@ var ug = (function($) {
             
             _fire(baseEvent);
             
+            var event = baseEvent;
             for (var i=0; i<events.length; ++i) {
-                _fire(baseEvent + '.' + events[i]);
+                event+= '.' + events[i];
+                _fire(event);
             }
         },
         

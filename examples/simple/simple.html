@@ -57,7 +57,10 @@
            ug.on('events:main_event.subevent', function() {
                $(document.body).append('<span>Subevent fired</span><br />');
            });
-           ug.trigger('events:main_event.subevent');
+           ug.on('events:main_event.subevent.test', function() {
+               $(document.body).append('<span>test fired</span><br />');
+           });
+           ug.trigger('events:main_event.subevent.test');
         </script>
     </body>
 </html>

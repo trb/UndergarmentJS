@@ -5,6 +5,7 @@
              src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js">
              </script>
         <script type="text/javascript" src="../../Undergarment.js"></script>
+        <script type="text/javascript" src="mustache.js"></script>
         <title>Simple example | Undergarment.js</title>
     </head>
     <body>
@@ -61,6 +62,18 @@
                $(document.body).append('<span>test fired</span><br />');
            });
            ug.trigger('events:main_event.subevent.test');
+           
+           /* Mustache template shortcut */
+          var template = '<span>Welcome {{ greeting.receiver }}! Love, {{ greeting.sender }}</span><br />';
+          ug.addResource('resource:test', { greeting: { receiver: 'John', sender: 'Jane' } });
+          ug.addTemplateMustache('template:mustache:test', template);
+          ug.addElement('element:document:body', 'body', 'append');
+          ug.connect([
+              'events:mustache.test', 'resource:test', 
+              'resource:test', 'template:mustache:test',
+              'template:mustache:test', 'element:document:body'
+          ]);
+          ug.trigger('events:mustache.test');
         </script>
     </body>
 </html>

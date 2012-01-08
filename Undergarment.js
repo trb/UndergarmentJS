@@ -146,6 +146,14 @@ var ug = (function($) {
             };
         },
         
+        addTemplateMustache: function(id, template) {
+            var toHtml = function(data) {
+                return Mustache.to_html(template, data);
+            };
+            
+            this.addTemplate(id, toHtml);
+        },
+        
         addEvent: function(id, elementSelector, event) {
             var data = arguments[3] || {};
             this_ = this;
